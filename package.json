@@ -1,0 +1,83 @@
+{
+  "name": "pointer",
+  "displayName": "pointer",
+  "description": "An ai agentic extension:)",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pointer.helloWorld",
+        "title": "Hello World"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "surfer-sidebar",
+          "title": "Surfer IDE",
+          "icon": "media/wave.svg"
+        },
+        {
+          "id": "surfer-right",
+          "title": "Surfer AI",
+          "icon": "media/wave.svg"
+        }
+      ]
+    },
+    "views": {
+      "surfer-sidebar": [
+        {
+          "type": "webview",
+          "id": "surfer.taskPanel",
+          "name": "Task Panel"
+        }
+      ],
+      "surfer-right": [
+        {
+          "type": "webview",
+          "id": "surfer.aiPanel",
+          "name": "Surfer AI"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "vscode:prepublish": "npm run bundle",
+    "compile": "tsc -p ./",
+    "bundle": "npm run compile && npm run bundle:webview",
+    "bundle:webview": "esbuild src/webview/index.tsx src/webview/RightIndex.tsx --bundle --outdir=out/webview --platform=browser --format=iife",
+    "watch": "tsc -watch -p ./",
+    "watch:webview": "esbuild src/webview/index.tsx --bundle --outfile=out/webview/index.js --platform=browser --format=iife --watch"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.110.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.27.4",
+    "eslint": "^9.39.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.66",
+    "ai": "^6.0.146",
+    "groq-sdk": "^1.1.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
