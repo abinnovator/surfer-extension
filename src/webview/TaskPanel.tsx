@@ -1,4 +1,5 @@
 import * as React from 'react';
+import useTaskStore from './store/taskStore';
 
 const vscode = (() => {
   try {
@@ -7,34 +8,16 @@ const vscode = (() => {
     return (window as any).vscode;
   }
 })();
-interface Task {
-  id: number;
-  text: string;
-  status: 'running' | 'done' | 'queued';
-}
 
 export function TaskPanel() {
-  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const { tasks, addTask, removeTask, updateTaskStatus } = useTaskStore();
   const [input, setInput] = React.useState('');
-
-  const updateTaskStatus = (id: number, status: 'running' | 'done' | 'queued') => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
-  };
-
-  const removeTask = (id: number) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
-  };
 
   const assignTask = () => {
     if (!input.trim()) return;
-    const newTask: Task = {
-      id: Date.now(),
-      text: input,
-      status: 'running'
-    };
-    setTasks(prev => [newTask, ...prev]);
-    setInput('');
+    addTask(input);
     vscode.postMessage({ command: 'assignTask', task: input });
+    setInput('');
   };
 
   React.useEffect(() => {
@@ -47,16 +30,13 @@ export function TaskPanel() {
       
       if (message.command === 'taskUpdate') {
         // Find the most recent running task and update its status
-        setTasks(prev => {
-          const runningTask = prev.find(t => t.status === 'running');
-          if (!runningTask) return prev;
-          
-          return prev.map(t => 
-            t.id === runningTask.id 
-              ? { ...t, status: message.status === 'done' ? 'done' : 'running' }
-              : t
+        const runningTask = tasks.find(t => t.status === 'running');
+        if (runningTask) {
+          updateTaskStatus(
+            runningTask.id,
+            message.status === 'done' ? 'done' : 'running'
           );
-        });
+        }
       }
     };
     
@@ -66,7 +46,7 @@ export function TaskPanel() {
       console.log('TaskPanel unmounted');
       window.removeEventListener('message', messageListener);
     };
-  }, []);
+  }, [tasks, updateTaskStatus]);
 
   return (
     <div style={{ padding: 12, fontFamily: 'var(--vscode-font-family)' }}>

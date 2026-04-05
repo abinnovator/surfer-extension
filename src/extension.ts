@@ -41,8 +41,13 @@ export async function activate(context: vscode.ExtensionContext) {
       placeHolder: 'gsk_...'
     }) ?? '';
     if (apiKey && apiKey.trim()) {
-      await context.secrets.store('groq-api-key', apiKey);
-      console.log('[Extension] API key stored');
+      try {
+        await context.secrets.store('groq-api-key', apiKey);
+        console.log('[Extension] API key stored successfully');
+      } catch (error) {
+        console.error('[Extension] Failed to store API key:', error);
+        vscode.window.showErrorMessage('Failed to store API key. Please try again.');
+      }
     } else {
       console.log('[Extension] No API key provided - extension features will be limited');
       vscode.window.showWarningMessage(
@@ -53,6 +58,26 @@ export async function activate(context: vscode.ExtensionContext) {
   } else {
     console.log('[Extension] API key found in secrets');
   }
+
+  // Command to update API key
+  const updateApiKeyCommand = vscode.commands.registerCommand('surfer.updateApiKey', async () => {
+    const newApiKey = await vscode.window.showInputBox({
+      prompt: 'Enter your new Groq API key',
+      password: true,
+      placeHolder: 'gsk_...'
+    });
+    if (newApiKey && newApiKey.trim()) {
+      try {
+        await context.secrets.store('groq-api-key', newApiKey);
+        initGroq(newApiKey);
+        initGroqProvider(newApiKey);
+        vscode.window.showInformationMessage('Groq API key updated successfully! Please reload the window.');
+      } catch (error) {
+        vscode.window.showErrorMessage('Failed to update API key.');
+      }
+    }
+  });
+  context.subscriptions.push(updateApiKeyCommand);
 
   console.log('[Extension] Initializing Groq');
   initGroq(apiKey);

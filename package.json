@@ -21,6 +21,10 @@
       {
         "command": "surfer.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "surfer.updateApiKey",
+        "title": "Surfer: Update Groq API Key"
       }
     ],
     "viewsContainers": {
@@ -84,6 +88,7 @@
     "groq-sdk": "^1.1.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
   }
 }
