@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { runAgent } from './AgentRunner';
+import { isGroqProviderInitialized } from './agents/groqProvider';
 
 export class SurferSidebarProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
@@ -26,6 +27,28 @@ export class SurferSidebarProvider implements vscode.WebviewViewProvider {
       
       if (message.command === 'assignTask') {
         console.log('[SurferSidebarProvider] Task assigned:', message.task);
+        
+        // Check if Groq provider is initialized
+        if (!isGroqProviderInitialized()) {
+          console.error('[SurferSidebarProvider] Groq provider not initialized');
+          
+          webviewView.webview.postMessage({
+            command: 'taskUpdate',
+            status: 'error',
+            message: 'No API key configured. Please reload VS Code and enter your Groq API key.'
+          });
+          
+          vscode.window.showErrorMessage(
+            'Pointer: No API key configured. Please reload VS Code and enter your Groq API key.',
+            'Get API Key'
+          ).then(selection => {
+            if (selection === 'Get API Key') {
+              vscode.env.openExternal(vscode.Uri.parse('https://console.groq.com'));
+            }
+          });
+          
+          return;
+        }
         
         try {
           console.log('[SurferSidebarProvider] Starting agent execution...');

@@ -36,12 +36,19 @@ export async function activate(context: vscode.ExtensionContext) {
   if (!apiKey) {
     console.log('[Extension] No API key found, prompting user');
     apiKey = await vscode.window.showInputBox({
-      prompt: 'Enter your Groq API key',
-      password: true
+      prompt: 'Enter your Groq API key (get one free at console.groq.com)',
+      password: true,
+      placeHolder: 'gsk_...'
     }) ?? '';
-    if (apiKey) {
+    if (apiKey && apiKey.trim()) {
       await context.secrets.store('groq-api-key', apiKey);
       console.log('[Extension] API key stored');
+    } else {
+      console.log('[Extension] No API key provided - extension features will be limited');
+      vscode.window.showWarningMessage(
+        'Pointer: No API key provided. Please restart VS Code and enter your Groq API key to use AI features.'
+      );
+      return; // Exit early without initializing AI features
     }
   } else {
     console.log('[Extension] API key found in secrets');
@@ -51,10 +58,8 @@ export async function activate(context: vscode.ExtensionContext) {
   initGroq(apiKey);
 
   // Initialize Groq provider for AI SDK agents
-  if (apiKey) {
-    console.log('[Extension] Initializing Groq provider for AI SDK agents');
-    initGroqProvider(apiKey);
-  }
+  console.log('[Extension] Initializing Groq provider for AI SDK agents');
+  initGroqProvider(apiKey);
 
   console.log('=== POINTER EXTENSION ACTIVATED ===');
 }

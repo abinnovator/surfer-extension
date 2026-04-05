@@ -39,7 +39,33 @@ export function TaskPanel() {
 
   React.useEffect(() => {
     console.log('TaskPanel mounted');
-    return () => console.log('TaskPanel unmounted');
+    
+    // Listen for messages from the extension
+    const messageListener = (event: MessageEvent) => {
+      const message = event.data;
+      console.log('TaskPanel received message:', message);
+      
+      if (message.command === 'taskUpdate') {
+        // Find the most recent running task and update its status
+        setTasks(prev => {
+          const runningTask = prev.find(t => t.status === 'running');
+          if (!runningTask) return prev;
+          
+          return prev.map(t => 
+            t.id === runningTask.id 
+              ? { ...t, status: message.status === 'done' ? 'done' : 'running' }
+              : t
+          );
+        });
+      }
+    };
+    
+    window.addEventListener('message', messageListener);
+    
+    return () => {
+      console.log('TaskPanel unmounted');
+      window.removeEventListener('message', messageListener);
+    };
   }, []);
 
   return (

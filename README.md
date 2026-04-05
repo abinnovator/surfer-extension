@@ -111,9 +111,6 @@ The agents are powered by Groq's high-performance AI models, ensuring fast and a
 
 This extension is in active development. Feedback, bug reports, and contributions are welcome!
 
-## 📄 License
-
-[Add your license here - e.g., MIT]
 
 ## 🙏 Acknowledgments
 
