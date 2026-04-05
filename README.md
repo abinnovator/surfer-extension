@@ -1,72 +1,125 @@
-# pointer README
+# Pointer - AI Agentic Coding Assistant
 
-This is the README for your extension "pointer". After writing up a brief description, we recommend including the following sections.
+**Pointer** is an intelligent VS Code extension powered by AI that helps you create, modify, and manage files in your workspace through natural language commands. Think of it as your AI coding companion that understands what you want to build and creates it for you.
 
-## Features
+## ✨ Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### 🤖 AI-Powered Task Execution
+- **Natural Language Commands**: Simply describe what you want to build, and Pointer will create it for you
+- **Multi-Agent Architecture**: Intelligent agents work together to understand, plan, and execute your requests
+- **File Operations**: Automatically creates files, folders, and manages your project structure
 
-For example if there is an image subfolder under your extension project workspace:
+### 🎯 Task Panel
+- Dedicated sidebar panel for assigning tasks to the AI agent
+- Real-time progress updates as the agent works
+- Clear feedback on task completion or errors
 
-\!\[feature X\]\(images/feature-x.png\)
+### 💬 AI Chat Interface
+- Interactive chat panel for conversing with the AI
+- Get coding assistance, explanations, and guidance
+- Context-aware responses based on your workspace
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### 🛠️ Workspace Tools
+The AI agent has access to powerful workspace tools:
+- **Read Files**: Analyze existing code and understand your project structure
+- **Create Files**: Generate new files with complete, working code
+- **List Files**: Explore workspace contents
+- **Create Folders**: Organize your project structure
+- **Run Terminal Commands**: Execute commands in your workspace
 
-## Requirements
+## 📋 Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Visual Studio Code v1.110.0 or higher
+- **Groq API Key**: You'll need a free API key from [Groq](https://console.groq.com)
 
-## Extension Settings
+## 🚀 Getting Started
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. **Install the Extension**
+   - Install Pointer from the VS Code Marketplace or OpenVSX
+   
+2. **Set Up Your API Key**
+   - On first activation, you'll be prompted to enter your Groq API key
+   - The key is securely stored in VS Code's secret storage
+   - Don't have a key? Get one free at [console.groq.com](https://console.groq.com)
 
-For example:
+3. **Open a Workspace**
+   - Open a folder in VS Code where you want to work
+   
+4. **Start Using Pointer**
+   - Click the Pointer icon in the Activity Bar (sidebar)
+   - Type your task in the Task Panel (e.g., "create a simple HTML landing page")
+   - Press Enter and watch Pointer work!
 
-This extension contributes the following settings:
+## 📖 Usage Examples
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+Here are some tasks you can assign to Pointer:
 
-## Known Issues
+- **"Create a React component for a login form"**
+- **"Build a simple Express.js API with CRUD endpoints"**
+- **"Generate a Python script to process CSV files"**
+- **"Create an HTML/CSS/JS calculator"**
+- **"Set up a basic Node.js project with TypeScript"**
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## 🎨 Interface
 
-## Release Notes
+Pointer adds two panels to VS Code:
 
-Users appreciate release notes as you update your extension.
+1. **Task Panel** (Left Sidebar)
+   - Primary interface for assigning coding tasks
+   - Shows real-time progress and status
+   - Displays completion messages and results
 
-### 1.0.0
+2. **Surfer AI Chat** (Right Sidebar)
+   - Interactive chat interface
+   - Ask questions and get AI assistance
+   - Conversational coding help
 
-Initial release of ...
+## ⚙️ How It Works
 
-### 1.0.1
+Pointer uses a sophisticated multi-agent system:
 
-Fixed issue #.
+1. **Orchestrator Agent**: Receives your request and coordinates the workflow
+2. **Coder Agent**: Executes file operations and writes code
+3. **Workspace Tools**: Provides the agent with abilities to interact with your files
 
-### 1.1.0
+The agents are powered by Groq's high-performance AI models, ensuring fast and accurate responses.
 
-Added features X, Y, and Z.
+## 🔒 Privacy & Security
+
+- Your Groq API key is stored securely using VS Code's built-in secret storage
+- No code or data is sent to any servers except Groq's API for processing
+- All file operations happen locally in your workspace
+
+## 🐛 Known Issues
+
+- Currently in early development (v0.0.1)
+- Limited to 20 agent steps per task
+- Error handling is basic and will be improved
+
+## 📝 Release Notes
+
+### 0.0.1 (Initial Release)
+
+- AI-powered task execution with natural language commands
+- Task Panel for assigning work to the AI agent
+- AI Chat Panel for interactive assistance
+- Workspace file operations (read, create, list, organize)
+- Integration with Groq API for fast AI inference
+- Secure API key storage
+
+## 🤝 Contributing
+
+This extension is in active development. Feedback, bug reports, and contributions are welcome!
+
+## 📄 License
+
+[Add your license here - e.g., MIT]
+
+## 🙏 Acknowledgments
+
+- Powered by [Groq](https://groq.com) for lightning-fast AI inference
+- Built with the [Vercel AI SDK](https://sdk.vercel.ai)
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
-# surfer-extension
+**Enjoy coding with Pointer! 🚀**

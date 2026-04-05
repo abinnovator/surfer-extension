@@ -1,6 +1,7 @@
 {
   "name": "pointer",
   "displayName": "pointer",
+  "repository": {},
   "description": "An ai agentic extension:)",
   "version": "0.0.1",
   "engines": {
@@ -74,10 +75,11 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.66",
+    "@ai-sdk/groq": "^3.0.33",
     "ai": "^6.0.146",
     "groq-sdk": "^1.1.2",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "zod": "^4.3.6"
   }
 }

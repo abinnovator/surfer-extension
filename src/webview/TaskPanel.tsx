@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 const vscode = (() => {
   try {
     return (window as any).acquireVsCodeApi();
@@ -102,8 +103,8 @@ export function TaskPanel() {
           }}>
             <div>{task.text}</div>
             <div style={{ fontSize: 10, color: '#3de8c0', marginTop: 4 }}>
-              {task.status === 'running' ? '⚡ Running...' :
-               task.status === 'done' ? '✓ Done' : '◦ Queued'}
+              {task.status === 'running' ? ' Running...' :
+               task.status === 'done' ? 'Done' : ' Queued'}
             </div>
           </div>
         ))}

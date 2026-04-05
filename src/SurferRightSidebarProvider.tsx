@@ -7,29 +7,38 @@ export class SurferRightSidebarProvider implements vscode.WebviewViewProvider {
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView) {
+    console.log('[SurferRightSidebarProvider] Resolving Chat Panel webview');
+    
     webviewView.webview.options = { 
       enableScripts: true,
       localResourceRoots: [this._extensionUri]
     };
     
     webviewView.webview.html = this._getHtml(webviewView.webview);
+    console.log('[SurferRightSidebarProvider] Chat Panel HTML set');
 
     webviewView.webview.onDidReceiveMessage(async (message) => {
-      console.log('Received message:', message.command);
+      console.log('[SurferRightSidebarProvider] Received message:', message.command);
 
       if (message.command === 'sendChat') {
+        console.log('[SurferRightSidebarProvider] Processing chat message');
+        console.log('[SurferRightSidebarProvider] Message count:', message.messages.length);
+        
         try {
           const response = await getGroqChatCompletion(message.messages);
           const choice = response.choices[0];
 
-          console.log('Finish reason:', choice.finish_reason);
-          console.log('Tool calls:', JSON.stringify(choice.message.tool_calls));
-          console.log('Content:', choice.message.content);
+          console.log('[SurferRightSidebarProvider] Finish reason:', choice.finish_reason);
+          console.log('[SurferRightSidebarProvider] Tool calls:', JSON.stringify(choice.message.tool_calls));
+          console.log('[SurferRightSidebarProvider] Content:', choice.message.content);
 
           // AI wants to call a tool
           if (choice.finish_reason === 'tool_calls' && choice.message.tool_calls) {
+            console.log('[SurferRightSidebarProvider] Processing', choice.message.tool_calls.length, 'tool calls');
+            
             for (const toolCall of choice.message.tool_calls) {
               const args = JSON.parse(toolCall.function.arguments);
+              console.log('[SurferRightSidebarProvider] Tool:', toolCall.function.name, 'Args:', args);
 
               switch (toolCall.function.name) {
                 case 'add_task':
