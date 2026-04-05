@@ -39,7 +39,7 @@ export class SurferSidebarProvider implements vscode.WebviewViewProvider {
           });
           
           vscode.window.showErrorMessage(
-            'Pointer: No API key configured. Please reload VS Code and enter your Groq API key.',
+            'surfer: No API key configured. Please reload VS Code and enter your Groq API key.',
             'Get API Key'
           ).then(selection => {
             if (selection === 'Get API Key') {

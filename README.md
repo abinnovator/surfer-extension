@@ -1,11 +1,11 @@
-# Pointer - AI Agentic Coding Assistant
+# surfer - AI Agentic Coding Assistant
 
-**Pointer** is an intelligent VS Code extension powered by AI that helps you create, modify, and manage files in your workspace through natural language commands. Think of it as your AI coding companion that understands what you want to build and creates it for you.
+**surfer** is an intelligent VS Code extension powered by AI that helps you create, modify, and manage files in your workspace through natural language commands. Think of it as your AI coding companion that understands what you want to build and creates it for you.
 
 ## ✨ Features
 
 ### 🤖 AI-Powered Task Execution
-- **Natural Language Commands**: Simply describe what you want to build, and Pointer will create it for you
+- **Natural Language Commands**: Simply describe what you want to build, and surfer will create it for you
 - **Multi-Agent Architecture**: Intelligent agents work together to understand, plan, and execute your requests
 - **File Operations**: Automatically creates files, folders, and manages your project structure
 
@@ -35,7 +35,7 @@ The AI agent has access to powerful workspace tools:
 ## 🚀 Getting Started
 
 1. **Install the Extension**
-   - Install Pointer from the VS Code Marketplace or OpenVSX
+   - Install surfer from the VS Code Marketplace or OpenVSX
    
 2. **Set Up Your API Key**
    - On first activation, you'll be prompted to enter your Groq API key
@@ -45,14 +45,14 @@ The AI agent has access to powerful workspace tools:
 3. **Open a Workspace**
    - Open a folder in VS Code where you want to work
    
-4. **Start Using Pointer**
-   - Click the Pointer icon in the Activity Bar (sidebar)
+4. **Start Using surfer**
+   - Click the surfer icon in the Activity Bar (sidebar)
    - Type your task in the Task Panel (e.g., "create a simple HTML landing page")
-   - Press Enter and watch Pointer work!
+   - Press Enter and watch surfer work!
 
 ## 📖 Usage Examples
 
-Here are some tasks you can assign to Pointer:
+Here are some tasks you can assign to surfer:
 
 - **"Create a React component for a login form"**
 - **"Build a simple Express.js API with CRUD endpoints"**
@@ -62,7 +62,7 @@ Here are some tasks you can assign to Pointer:
 
 ## 🎨 Interface
 
-Pointer adds two panels to VS Code:
+surfer adds two panels to VS Code:
 
 1. **Task Panel** (Left Sidebar)
    - Primary interface for assigning coding tasks
@@ -76,7 +76,7 @@ Pointer adds two panels to VS Code:
 
 ## ⚙️ How It Works
 
-Pointer uses a sophisticated multi-agent system:
+surfer uses a sophisticated multi-agent system:
 
 1. **Orchestrator Agent**: Receives your request and coordinates the workflow
 2. **Coder Agent**: Executes file operations and writes code
@@ -119,4 +119,4 @@ This extension is in active development. Feedback, bug reports, and contribution
 
 ---
 
-**Enjoy coding with Pointer! 🚀**
+**Enjoy coding with surfer! 🚀**

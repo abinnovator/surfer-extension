@@ -8,8 +8,8 @@ import { initGroqProvider } from './agents/groqProvider';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-	console.log('=== POINTER EXTENSION ACTIVATING ===');
-	console.log('Congratulations, your extension "pointer" is now active!');
+	console.log('=== surfer EXTENSION ACTIVATING ===');
+	console.log('Congratulations, your extension "surfer" is now active!');
 
 	console.log('[Extension] Creating Task Panel provider');
 	const provider = new SurferSidebarProvider(context.extensionUri);
@@ -46,7 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
     } else {
       console.log('[Extension] No API key provided - extension features will be limited');
       vscode.window.showWarningMessage(
-        'Pointer: No API key provided. Please restart VS Code and enter your Groq API key to use AI features.'
+        'surfer: No API key provided. Please restart VS Code and enter your Groq API key to use AI features.'
       );
       return; // Exit early without initializing AI features
     }
@@ -61,7 +61,7 @@ export async function activate(context: vscode.ExtensionContext) {
   console.log('[Extension] Initializing Groq provider for AI SDK agents');
   initGroqProvider(apiKey);
 
-  console.log('=== POINTER EXTENSION ACTIVATED ===');
+  console.log('=== surfer EXTENSION ACTIVATED ===');
 }
 
 // This method is called when your extension is deactivated

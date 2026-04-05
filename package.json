@@ -1,7 +1,7 @@
 {
-  "name": "pointer",
+  "name": "surfer",
   "publisher": "Abinnovator",
-  "displayName": "pointer",
+  "displayName": "surfer",
   "repository": {
     "type": "git",
     "url": "https://github.com/abinnovator/surfer-extension"
@@ -19,7 +19,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "pointer.helloWorld",
+        "command": "surfer.helloWorld",
         "title": "Hello World"
       }
     ],

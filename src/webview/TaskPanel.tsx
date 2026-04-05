@@ -113,7 +113,7 @@ export function TaskPanel() {
           background: 'var(--vscode-button-background)',
           color: 'var(--vscode-button-foreground)',
           border: 'none', borderRadius: 4,
-          cursor: 'pointer', fontSize: 12
+          cursor: 'surfer', fontSize: 12
         }}
       >
         Assign to AI
