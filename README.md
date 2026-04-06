@@ -1,6 +1,8 @@
 # Surfer
 Surfer is a VS Code extension that helps developers build apps faster by automating repetitive tasks. Its built on top of the vercel ai sdk and groq. It adds to panels to your IDE: The chat panel and the task panel. The chat panel is a chat interface that allows you to chat with the AI. The task panel is a task interface that allows you to create and manage tasks. The chat panel like its sounds is a simple coding chatbot while the task panel is run by a head orchestration agent and 3 sub agents. The head has to determine what agents need to be called. the three agents are: the planner agent, the coder agent and the reviewer agent. The planner agent is responsible for planning the tasks. The coder agent is responsible for coding the tasks. The reviewer agent is responsible for reviewing the code generated. The reviewer is called in particularly long or big tasks.
 
+You can also press ctrl + shift+ p and search create project to get access to a quick create menu.  This will allow you to create web projects and react native projects. The menu supports these four frameworks - Vite, next.js , tanstack and expo.
+
 # Tech Stack
 - Vercel AI SDK
 - Groq

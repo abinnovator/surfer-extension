@@ -7,7 +7,7 @@
     "url": "https://github.com/abinnovator/surfer-extension"
   },
   "description": "An ai agentic extension:)",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.106.0"
   },
@@ -19,12 +19,19 @@
   "contributes": {
     "commands": [
       {
-        "command": "surfer.helloWorld",
-        "title": "Hello World"
+        "command": "surfer.createProject",
+        "title": "Create Project"
       },
       {
         "command": "surfer.updateApiKey",
         "title": "Surfer: Update Groq API Key"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "surfer.ccreateProject",
+        "key": "win+a",
+        "when": "editorTextFocus"
       }
     ],
     "viewsContainers": {

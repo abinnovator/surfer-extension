@@ -7,11 +7,57 @@ import { initGroq } from './Groq';
 import { initGroqProvider } from './agents/groqProvider';
 
 export async function activate(context: vscode.ExtensionContext) {
+  const createProjectCommand = 'surfer.createProject';
+  
+  const terminal = vscode.window.createTerminal('Surfer AI');
 
-	console.log('=== surfer EXTENSION ACTIVATING ===');
-	console.log('Congratulations, your extension "surfer" is now active!');
 
-	console.log('[Extension] Creating Task Panel provider');
+  const commandHandler = async () => {
+    const projectType = await vscode.window.showQuickPick(
+      [
+        { label: 'Vite Project, React, TypeScript', description: 'Create a new React application', value: 'react' },
+        { label: 'Next.js Project', description: 'Create a Next.js application', value: 'nextjs' },
+        { label: 'Tanstack project', description: 'Create a tanstack application', value: 'tanstack' },
+        { label: 'React Native Project', description: 'Create a React Native application', value: 'react-native' }
+
+      ],
+      {
+        placeHolder: 'Select a project type to create',
+        title: 'Create New Project'
+      }
+    );
+
+    if (!projectType) {
+      return; // User cancelled
+    }
+
+    switch (projectType.value) {
+      case 'react':
+        vscode.window.showInformationMessage('Creating vite project...');
+        terminal.show();
+        terminal.sendText('npm create vite@latest . -- --template react-ts');
+        break;
+      case 'tanstack':
+        vscode.window.showInformationMessage('Creating Tanstack project...');
+        terminal.show();
+        terminal.sendText('npx @tanstack/cli@latest create');
+        break;
+      case 'nextjs':
+        vscode.window.showInformationMessage('Creating Next.js project...');
+        terminal.show();
+        terminal.sendText('npx create-next-app@latest ./ --yes');
+        break;
+      case 'react-native':
+        vscode.window.showInformationMessage('Creating React Native project...');
+        terminal.show();
+        terminal.sendText('npx create-expo-app@latest');
+        break;
+    }
+  };
+
+  context.subscriptions.push(vscode.commands.registerCommand(createProjectCommand, commandHandler));
+
+
 	const provider = new SurferSidebarProvider(context.extensionUri);
  	 context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
@@ -19,9 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
       provider
     )
   );
-  console.log('[Extension] Task Panel provider registered');
 
-  console.log('[Extension] Creating Chat Panel provider');
   const SecondaryProvider = new SurferRightSidebarProvider(context.extensionUri);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
@@ -53,7 +97,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showWarningMessage(
         'surfer: No API key provided. Please restart VS Code and enter your Groq API key to use AI features.'
       );
-      return; // Exit early without initializing AI features
+      return;
     }
   } else {
     console.log('[Extension] API key found in secrets');
@@ -79,15 +123,7 @@ export async function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(updateApiKeyCommand);
 
-  console.log('[Extension] Initializing Groq');
-  initGroq(apiKey);
 
-  // Initialize Groq provider for AI SDK agents
-  console.log('[Extension] Initializing Groq provider for AI SDK agents');
-  initGroqProvider(apiKey);
-
-  console.log('=== surfer EXTENSION ACTIVATED ===');
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
