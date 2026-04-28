@@ -1,5 +1,4 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+
 import * as vscode from 'vscode';
 import { SurferSidebarProvider } from './SurferSidebarProvider';
 import { SurferRightSidebarProvider } from './SurferRightSidebarProvider';
@@ -28,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     if (!projectType) {
-      return; // User cancelled
+      return;
     }
 
     switch (projectType.value) {
@@ -103,7 +102,6 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('[Extension] API key found in secrets');
   }
 
-  // Command to update API key
   const updateApiKeyCommand = vscode.commands.registerCommand('surfer.updateApiKey', async () => {
     const newApiKey = await vscode.window.showInputBox({
       prompt: 'Enter your new Groq API key',

@@ -24,6 +24,7 @@ CRITICAL RULES - FOLLOW THESE EXACTLY:
 5. If the workspace is empty, skip analysis and start creating files immediately
 6. If you need to understand the existing codebase, use list_files and read_file tools to analyze the structure and tech stack before creating new files
 7. If you need acces to documentation or examples, use the websearch tool to find relevant information online
+8. If you have any questions for the user, use the ask_user tool to ask them.
 
 How to create files:
 - Use create_file(path: "filename.html", content: "...") for each file
@@ -42,6 +43,8 @@ If workspace has existing files:
 - Call read_file to understand the tech stack
 - Match the existing code style when creating new files
 
+
+
 REMEMBER: Your job is to CREATE files, not describe them. Use the tools!`,
         prompt,
         tools: {
@@ -50,7 +53,8 @@ REMEMBER: Your job is to CREATE files, not describe them. Use the tools!`,
           run_terminal: workspaceTools.run_terminal,
           list_files: workspaceTools.list_files,
           create_folder: workspaceTools.create_folder,
-          websearch: webSearch()
+          websearch: webSearch(),
+          ask_user: workspaceTools.ask_user
         },
         stopWhen: stepCountIs(20),
         });

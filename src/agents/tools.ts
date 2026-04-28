@@ -112,6 +112,18 @@ export const workspaceTools = {
         console.log('[WorkspaceTools] Folder created successfully:', folderPath);
         return { success: true, path: folderPath, message: 'Folder created successfully' };
 
-    }})
+    }}),
+    ask_user: tool({
+      description: 'Ask the user a question needed and get their input',
+      inputSchema: z.object({
+        question: z.string().describe('The question to ask the user')
+      }),
+      execute: async ({ question }) => {
+          console.log('[WorkspaceTools] Asking user:', question);
+          const answer = await vscode.window.showInputBox({ prompt: question });
+          console.log('[WorkspaceTools] User answered:', answer);
+          return { answer };
+      }
+    })
     
 };

@@ -8,7 +8,6 @@ const vscode = (() => {
   }
 })();
 
-// Helper function to format message content with code blocks
 function formatMessageContent(content: string) {
   const parts: React.ReactNode[] = [];
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
@@ -16,7 +15,6 @@ function formatMessageContent(content: string) {
   let match;
 
   while ((match = codeBlockRegex.exec(content)) !== null) {
-    // Add text before code block (with inline code formatting)
     if (match.index > lastIndex) {
       const textBefore = content.substring(lastIndex, match.index);
       parts.push(
@@ -26,7 +24,6 @@ function formatMessageContent(content: string) {
       );
     }
 
-    // Add code block
     const language = match[1] || '';
     const code = match[2];
     parts.push(
@@ -120,6 +117,29 @@ function formatInlineCode(text: string) {
 export function ChatPanel() {
   const [input, setInput] = React.useState('');
   const [messages, setMessages] = React.useState<{ role: string; content: string }[]>([]);
+  const showSuggestions = messages.length === 0 && input.trim().length === 0;
+  const suggestionItems = [
+    {
+      text: 'Explain this code',
+      value: 'Explain this code',
+      background: '#0B6300'
+    },
+    {
+      text: 'Find bugs in this file',
+      value: 'Find bugs in this file',
+      background: '#000080'
+    },
+    {
+      text: 'Summarize the logic',
+      value: 'Summarize the logic',
+      background: '#f59f0b82'
+    },
+    {
+      text: 'Suggest improvements',
+      value: 'Suggest improvements',
+      background: '#ef4444'
+    }
+  ];
   
   React.useEffect(() => {
     console.log('ChatPanel mounted');
@@ -155,75 +175,110 @@ export function ChatPanel() {
   }, [messages]);
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      padding: '8px'
+    <main style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      padding: '8px',
+      boxSizing: 'border-box'
     }}>
-      <div style={{ flex: 1, overflowY: 'auto', marginBottom: 8 }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{
-            marginBottom: 8,
-            padding: '6px 8px',
-            borderRadius: 4,
-            background: msg.role === 'user' 
-              ? 'var(--vscode-input-background)' 
-              : 'transparent',
-            fontSize: 12,
-            lineHeight: 1.5
-          }}>
-            <div style={{ 
-              fontSize: 10, 
-              fontWeight: 600,
-              marginBottom: 4,
-              color: msg.role === 'user' 
-                ? '#3de8c0' 
-                : 'var(--vscode-descriptionForeground)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}>
-              {msg.role === 'user' ? 'You' : 'Surfer AI'}
-            </div>
-            <div style={{ color: 'var(--vscode-foreground)' }}>
-              {formatMessageContent(msg.content)}
-            </div>
+      {showSuggestions && (
+        <div className="flex flex-col gap-3 px-10" style={{ marginBottom: 12 }}>
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Suggestions</h1>
+          <div className="flex flex-col gap-7 pt-10">
+            {suggestionItems.map(item => (
+              <button
+                key={item.value}
+                onClick={() => setInput(item.value)}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  border: 'none',
+                  borderRadius: 14,
+                  padding: '16px 18px',
+                  color: '#ffffff',
+                  background: item.background,
+                  boxShadow: '0 10px 24px rgba(0, 0, 0, 0.22)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  lineHeight: 1.3,
+                  cursor: 'pointer'
+                }}
+              >
+                {item.text}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
-      <textarea
-        rows={3}
-        value={input}
-        onChange={e => {
-          console.log('Input change:', e.target.value);
-          setInput(e.target.value);
-        }}
-        onKeyDown={e => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (!input.trim()) return;
-            sendMessage(input, 'user');
-            setInput('');
-          }
-        }}
-        placeholder="Explore and understand code."
-        style={{
-          width: '100%',
-          background: 'var(--vscode-input-background)',
-          color: 'var(--vscode-input-foreground)',
-          border: '1px solid var(--vscode-input-border)',
-          borderRadius: 4,
-          padding: 8,
-          fontSize: 12,
-          resize: 'none',
-          fontFamily: 'var(--vscode-font-family)',
-        }}
-      />
-    </div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0
+      }}>
+        <div style={{ flex: 1, overflowY: 'auto', marginBottom: 8 }}>
+          {messages.map((msg, i) => (
+            <div key={i} style={{
+              marginBottom: 8,
+              padding: '6px 8px',
+              borderRadius: 4,
+              background: msg.role === 'user' 
+                ? 'var(--vscode-input-background)' 
+                : 'transparent',
+              fontSize: 12,
+              lineHeight: 1.5
+            }}>
+              <div style={{ 
+                fontSize: 10, 
+                fontWeight: 600,
+                marginBottom: 4,
+                color: msg.role === 'user' 
+                  ? '#3de8c0' 
+                  : 'var(--vscode-descriptionForeground)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                {msg.role === 'user' ? 'You' : 'Surfer AI'}
+              </div>
+              <div style={{ color: 'var(--vscode-foreground)' }}>
+                {formatMessageContent(msg.content)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <textarea
+          rows={3}
+          value={input}
+          onChange={e => {
+            console.log('Input change:', e.target.value);
+            setInput(e.target.value);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              if (!input.trim()) return;
+              sendMessage(input, 'user');
+              setInput('');
+            }
+          }}
+          placeholder="Explore and understand code."
+          style={{
+            width: '100%',
+            background: 'var(--vscode-input-background)',
+            color: 'var(--vscode-input-foreground)',
+            border: '1px solid var(--vscode-input-border)',
+            borderRadius: 4,
+            padding: 8,
+            fontSize: 12,
+            resize: 'none',
+            fontFamily: 'var(--vscode-font-family)',
+          }}
+        />
+      </div>
+    </main>
+
   );
 }

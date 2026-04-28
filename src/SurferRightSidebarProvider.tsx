@@ -103,7 +103,6 @@ export class SurferRightSidebarProvider implements vscode.WebviewViewProvider {
                     const dir = args.directory ? path.join(workspaceRoot, args.directory) : workspaceRoot
                     const files = getAllFiles(dir, workspaceRoot)
                     
-                    // Send file list back into the conversation
                     const fileList = files.join('\n')
                     webviewView.webview.postMessage({
                       command: 'chatResponse',
@@ -119,7 +118,6 @@ export class SurferRightSidebarProvider implements vscode.WebviewViewProvider {
               }
             }
           } else {
-            // Normal text reply
             webviewView.webview.postMessage({
               command: 'chatResponse',
               content: choice.message.content || 'No response'
