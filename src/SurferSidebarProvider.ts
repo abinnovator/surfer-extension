@@ -1,11 +1,15 @@
 import * as vscode from 'vscode';
-import { runAgent } from './AgentRunner';
-import { isGroqProviderInitialized } from './agents/groqProvider';
+import * as fs from 'fs';
+import * as path from 'path';
+import { createAgent } from 'surfer-sdk';
 
 export class SurferSidebarProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(
+    private readonly _extensionUri: vscode.Uri,
+    private readonly _context: vscode.ExtensionContext
+  ) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView) {
     console.log('[SurferSidebarProvider] Resolving Task Panel webview');
@@ -17,123 +21,144 @@ export class SurferSidebarProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this._extensionUri]
     };
     
-    // Important: Set this before setting HTML to prevent re-renders
     webviewView.webview.html = this._getHtml(webviewView.webview);
-    console.log('[SurferSidebarProvider] Task Panel HTML set');
 
-    // Handle messages from the webview
     webviewView.webview.onDidReceiveMessage(async (message) => {
-      console.log('[SurferSidebarProvider] Received message:', message);
-      
       if (message.command === 'assignTask') {
-        console.log('[SurferSidebarProvider] Task assigned:', message.task);
-        
-        // Check if Groq provider is initialized
-        if (!isGroqProviderInitialized()) {
-          console.error('[SurferSidebarProvider] Groq provider not initialized');
-          
+
+        const token = await this._context.secrets.get('surfer-token')
+
+        if (!token) {
           webviewView.webview.postMessage({
             command: 'taskUpdate',
             status: 'error',
-            message: 'No API key configured. Please reload VS Code and enter your Groq API key.'
-          });
-          
+            message: 'Not signed in. Run "Surfer: Sign In" first.'
+          })
           vscode.window.showErrorMessage(
-            'surfer: No API key configured. Please reload VS Code and enter your Groq API key.',
-            'Get API Key'
+            'Surfer: Please sign in first.',
+            'Sign In'
           ).then(selection => {
-            if (selection === 'Get API Key') {
-              vscode.env.openExternal(vscode.Uri.parse('https://console.groq.com'));
+            if (selection === 'Sign In') {
+              vscode.commands.executeCommand('surfer.signIn')
             }
-          });
-          
-          return;
+          })
+          return
         }
-        
-        try {
-          console.log('[SurferSidebarProvider] Starting agent execution...');
-          
-          // Show progress notification
-          vscode.window.showInformationMessage(
-            `Surfer: Processing task — "${message.task}"`
-          );
 
-          // Send status update to webview
+        try {
+          vscode.window.showInformationMessage(`Surfer: Processing task — "${message.task}"`)
+
           webviewView.webview.postMessage({
             command: 'taskUpdate',
             status: 'running',
             message: 'Starting agent...'
-          });
+          })
 
-          // Run the agent
-          const result = await runAgent(message.task, (update) => {
-            console.log('[SurferSidebarProvider] Agent update:', update);
-            webviewView.webview.postMessage({
-              command: 'taskUpdate',
-              status: 'running',
-              message: update
-            });
-          });
+          const workspaceRoot = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+          const workspaceFiles = workspaceRoot ? getAllFiles(workspaceRoot, workspaceRoot) : []
 
-          console.log('[SurferSidebarProvider] Agent completed successfully');
-          console.log('[SurferSidebarProvider] Result:', result);
+          const agent = createAgent(token)
 
-          // Send completion to webview
+          const result = await agent.run(
+            message.task,
+            workspaceFiles,
+            {
+              create_file: async (args: Record<string, any>) => {
+                if (!workspaceRoot) return 'No workspace open'
+                const fullPath = path.join(workspaceRoot, args.path)
+                fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+                fs.writeFileSync(fullPath, args.content)
+                webviewView.webview.postMessage({
+                  command: 'taskUpdate',
+                  status: 'running',
+                  message: `Created: ${args.path}`
+                })
+                return `Created file: ${args.path}`
+              },
+              edit_file: async (args: Record<string, any>) => {
+                if (!workspaceRoot) return 'No workspace open'
+                const fullPath = path.join(workspaceRoot, args.path)
+                fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+                fs.writeFileSync(fullPath, args.content)
+                webviewView.webview.postMessage({
+                  command: 'taskUpdate',
+                  status: 'running',
+                  message: `Edited: ${args.path}`
+                })
+                return `Edited file: ${args.path}`
+              },
+              read_file: async (args: Record<string, any>) => {
+                if (!workspaceRoot) return 'No workspace open'
+                try {
+                  return fs.readFileSync(path.join(workspaceRoot, args.path), 'utf8')
+                } catch {
+                  return `Could not read: ${args.path}`
+                }
+              },
+              list_workspace_files: async (args: Record<string, any>) => {
+                if (!workspaceRoot) return 'No workspace open'
+                const dir = args.directory ? path.join(workspaceRoot, args.directory) : workspaceRoot
+                return getAllFiles(dir, workspaceRoot).join('\n')
+              },
+              run_terminal: async (args: Record<string, any>) => {
+                const terminal = vscode.window.createTerminal('Surfer AI')
+                terminal.show()
+                terminal.sendText(args.command)
+                webviewView.webview.postMessage({
+                  command: 'taskUpdate',
+                  status: 'running',
+                  message: `Running: ${args.command}`
+                })
+                return `Running: ${args.command}`
+              }
+            },
+            (step, msg) => {
+              webviewView.webview.postMessage({
+                command: 'taskUpdate',
+                status: 'running',
+                message: msg
+              })
+            }
+          )
+
           webviewView.webview.postMessage({
             command: 'taskUpdate',
             status: 'done',
-            message: 'Task completed!',
-            result: result
-          });
+            message: result
+          })
 
-          vscode.window.showInformationMessage(
-            `Surfer: Task completed!`
-          );
+          vscode.window.showInformationMessage('Surfer: Task completed!')
 
         } catch (error) {
-          console.error('[SurferSidebarProvider] Agent execution failed:', error);
-          
+          console.error('[SurferSidebarProvider] Task failed:', error)
           webviewView.webview.postMessage({
             command: 'taskUpdate',
             status: 'error',
             message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
-          });
-
+          })
           vscode.window.showErrorMessage(
             `Surfer: Task failed — ${error instanceof Error ? error.message : 'Unknown error'}`
-          );
+          )
         }
       }
     });
-    
-    console.log('[SurferSidebarProvider] Task Panel ready');
   }
 
   private _getHtml(webview: vscode.Webview): string {
-  const scriptUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(this._extensionUri, 'out', 'webview', 'index.js')
-  );
-
-  const nonce = getNonce();
-
-  return `<!DOCTYPE html>
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'out', 'webview', 'index.js')
+    );
+    const nonce = getNonce();
+    return `<!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline' ${webview.cspSource};">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline' ${webview.cspSource}; connect-src https://surfer-dash.vercel.app;">
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { 
-        height: 100%; 
-        width: 100%;
-        overflow: hidden;
-        background: transparent;
-      }
-      #root {
-        height: 100%;
-        width: 100%;
-      }
+      html, body { height: 100%; width: 100%; overflow: hidden; background: transparent; }
+      #root { height: 100%; width: 100%; }
     </style>
   </head>
   <body>
@@ -141,7 +166,7 @@ export class SurferSidebarProvider implements vscode.WebviewViewProvider {
     <script nonce="${nonce}" src="${scriptUri}"></script>
   </body>
   </html>`;
-}
+  }
 }
 
 function getNonce() {
@@ -151,4 +176,22 @@ function getNonce() {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
+}
+
+function getAllFiles(dir: string, root: string, files: string[] = []): string[] {
+  const ignored = ['node_modules', '.git', 'out', 'dist', '.next']
+  try {
+    const items = fs.readdirSync(dir)
+    for (const item of items) {
+      if (ignored.includes(item)) continue
+      const fullPath = path.join(dir, item)
+      const stat = fs.statSync(fullPath)
+      if (stat.isDirectory()) {
+        getAllFiles(fullPath, root, files)
+      } else {
+        files.push(path.relative(root, fullPath))
+      }
+    }
+  } catch {}
+  return files
 }

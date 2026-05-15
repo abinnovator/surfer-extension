@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getGroqChatCompletion } from './Groq';
+import { createSurfer } from 'surfer-sdk';
 
 export class SurferRightSidebarProvider implements vscode.WebviewViewProvider {
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(
+    private readonly _extensionUri: vscode.Uri,
+    private readonly _context: vscode.ExtensionContext
+  ) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView) {
     console.log('[SurferRightSidebarProvider] Resolving Chat Panel webview');
@@ -22,113 +25,89 @@ export class SurferRightSidebarProvider implements vscode.WebviewViewProvider {
 
       if (message.command === 'sendChat') {
         console.log('[SurferRightSidebarProvider] Processing chat message');
-        console.log('[SurferRightSidebarProvider] Message count:', message.messages.length);
-        
+
+        const token = await this._context.secrets.get('surfer-token')
+
+        if (!token) {
+          webviewView.webview.postMessage({
+            command: 'chatResponse',
+            content: 'Not signed in. Run "Surfer: Sign In" first.'
+          })
+          return
+        }
+
         try {
-          const response = await getGroqChatCompletion(message.messages);
-          const choice = response.choices[0];
+          const workspaceRoot = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+          const workspaceFiles = workspaceRoot ? getAllFiles(workspaceRoot, workspaceRoot) : []
 
-          console.log('[SurferRightSidebarProvider] Finish reason:', choice.finish_reason);
-          console.log('[SurferRightSidebarProvider] Tool calls:', JSON.stringify(choice.message.tool_calls));
-          console.log('[SurferRightSidebarProvider] Content:', choice.message.content);
+          const surfer = createSurfer(token)
 
-          // AI wants to call a tool
-          if (choice.finish_reason === 'tool_calls' && choice.message.tool_calls) {
-            console.log('[SurferRightSidebarProvider] Processing', choice.message.tool_calls.length, 'tool calls');
-            
-            for (const toolCall of choice.message.tool_calls) {
-              const args = JSON.parse(toolCall.function.arguments);
-              console.log('[SurferRightSidebarProvider] Tool:', toolCall.function.name, 'Args:', args);
+          const response = await surfer.chat(message.messages, {
+            workspaceFiles,
+            workspaceRoot: workspaceRoot ? path.basename(workspaceRoot) : undefined,
+            tools: {
+              create_file: async (args: Record<string, any>) => {
+              const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              if (!workspacePath) return 'No workspace folder open'
+              const fullPath = path.join(workspacePath, args.path)
+              fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+              fs.writeFileSync(fullPath, args.content)
+              return `Created file: ${args.path}`
+            },
 
-              switch (toolCall.function.name) {
-                case 'add_task':
-                  webviewView.webview.postMessage({
-                    command: 'chatResponse',
-                    content: `Added task: ${args.task}`
-                  })
-                  // Also forward to task panel
-                  vscode.commands.executeCommand('surfer.addTask', args.task)
-                  break
-
-                case 'create_file':
-                  const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath
-                  if (workspacePath) {
-                    const fullPath = path.join(workspacePath, args.path)
-                    fs.mkdirSync(path.dirname(fullPath), { recursive: true })
-                    fs.writeFileSync(fullPath, args.content)
-                    webviewView.webview.postMessage({
-                      command: 'chatResponse',
-                      content: `Created file: ${args.path}`
-                    })
-                  } else {
-                    webviewView.webview.postMessage({
-                      command: 'chatResponse',
-                      content: 'No workspace folder open'
-                    })
-                  }
-                  break
-
-                case 'read_file':
-                  const wsPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath
-                  if (wsPath) {
-                    try {
-                      const filePath = path.join(wsPath, args.path)
-                      const content = fs.readFileSync(filePath, 'utf8')
-                      // Send file content back to AI for context
-                      webviewView.webview.postMessage({
-                        command: 'chatResponse',
-                        content: `📄 **${args.path}**:\n\`\`\`\n${content}\n\`\`\``
-                      })
-                    } catch {
-                      webviewView.webview.postMessage({
-                        command: 'chatResponse',
-                        content: ` Could not read file: ${args.path}`
-                      })
-                    }
-                  }
-                  break
-
-                case 'run_terminal':
-                  const terminal = vscode.window.createTerminal('Surfer AI')
-                  terminal.show()
-                  terminal.sendText(args.command)
-                  webviewView.webview.postMessage({
-                    command: 'chatResponse',
-                    content: `🖥️ Running: \`${args.command}\``
-                  })
-                  break
-                case 'list_workspace_files':
-                  const workspaceRoot = vscode.workspace.workspaceFolders?.[0].uri.fsPath
-                  if (workspaceRoot) {
-                    const dir = args.directory ? path.join(workspaceRoot, args.directory) : workspaceRoot
-                    const files = getAllFiles(dir, workspaceRoot)
-                    
-                    const fileList = files.join('\n')
-                    webviewView.webview.postMessage({
-                      command: 'chatResponse',
-                      content: `📁 Workspace files:\n\`\`\`\n${fileList}\n\`\`\``
-                    })
-                  }
-                  break
-                default:
-                  webviewView.webview.postMessage({
-                    command: 'chatResponse',
-                    content: `Unknown tool: ${toolCall.function.name}`
-                  })
+            read_file: async (args: Record<string, any>) => {
+              const wsPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              if (!wsPath) return 'No workspace folder open'
+              try {
+                const fullPath = path.join(wsPath, args.path)
+                const content = fs.readFileSync(fullPath, 'utf8')
+                return `📄 **${args.path}**:\n\`\`\`\n${content}\n\`\`\``
+              } catch {
+                return `Could not read file: ${args.path}`
               }
+            },
+
+            run_terminal: async (args: Record<string, any>) => {
+              const terminal = vscode.window.createTerminal('Surfer AI')
+              terminal.show()
+              terminal.sendText(args.command)
+              return `🖥️ Running: \`${args.command}\``
+            },
+
+            list_workspace_files: async (args: Record<string, any>) => {
+              const workspaceRoot = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              if (!workspaceRoot) return 'No workspace folder open'
+              const dir = args.directory ? path.join(workspaceRoot, args.directory) : workspaceRoot
+              const files = getAllFiles(dir, workspaceRoot)
+              return `📁 Workspace files:\n\`\`\`\n${files.join('\n')}\n\`\`\``
+            },
+
+            add_task: async (args: Record<string, any>) => {
+              vscode.commands.executeCommand('surfer.addTask', args.task)
+              return `Added task: ${args.task}`
+            },
+            edit_file: async (args: Record<string, any>) => {
+              const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              if (!workspacePath) return 'No workspace folder open'
+              const fullPath = path.join(workspacePath, args.path)
+              fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+              fs.writeFileSync(fullPath, args.content)
+              return `Edited file: ${args.path}`
+            },
             }
-          } else {
-            webviewView.webview.postMessage({
-              command: 'chatResponse',
-              content: choice.message.content || 'No response'
-            })
-          }
+          })
+
+          webviewView.webview.postMessage({
+            command: 'chatResponse',
+            content: response
+          })
+
         } catch (error) {
-          console.error('Groq API error:', error);
+          console.error('[SurferRightSidebarProvider] Error:', error)
           webviewView.webview.postMessage({
             command: 'chatResponse',
             content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
-          });
+          })
         }
       }
     });
@@ -146,7 +125,7 @@ export class SurferRightSidebarProvider implements vscode.WebviewViewProvider {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline' ${webview.cspSource};">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline' ${webview.cspSource}; connect-src https://surfer-dash.vercel.app;">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { 
@@ -177,6 +156,7 @@ function getNonce() {
   }
   return text;
 }
+
 function getAllFiles(dir: string, root: string, files: string[] = []): string[] {
   const ignored = ['node_modules', '.git', 'out', 'dist', '.next']
   
@@ -189,12 +169,10 @@ function getAllFiles(dir: string, root: string, files: string[] = []): string[] 
       if (stat.isDirectory()) {
         getAllFiles(fullPath, root, files)
       } else {
-        // Store relative path
         files.push(path.relative(root, fullPath))
       }
     }
   } catch {
-    // skip unreadable dirs
   }
   
   return files

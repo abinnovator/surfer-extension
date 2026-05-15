@@ -5,6 +5,7 @@ import { webSearch } from '@exalabs/ai-sdk';
 
 console.log('[CoderAgent] Coder Agent module loaded');
 
+
 export const CoderAgent = {
   generate: async ({ prompt }: { prompt: string }) => {
     console.log('[CoderAgent] Generating response for prompt:', prompt);

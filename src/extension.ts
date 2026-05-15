@@ -57,7 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand(createProjectCommand, commandHandler));
 
 
-	const provider = new SurferSidebarProvider(context.extensionUri);
+	const provider = new SurferSidebarProvider(context.extensionUri, context)
  	 context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       'surfer.taskPanel',
@@ -65,7 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  const SecondaryProvider = new SurferRightSidebarProvider(context.extensionUri);
+  const SecondaryProvider = new SurferRightSidebarProvider(context.extensionUri, context)
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       'surfer.aiPanel',
@@ -120,6 +120,25 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   });
   context.subscriptions.push(updateApiKeyCommand);
+
+  
+  
+
+  const signInCommand = vscode.commands.registerCommand('surfer.signIn', async () => {
+    vscode.env.openExternal(vscode.Uri.parse('https://surferai.dev/token'))
+    
+    const token = await vscode.window.showInputBox({
+      prompt: 'Paste your Surfer token from the browser',
+      password: true,
+      placeHolder: 'sur_...'
+    })
+
+    if (token && token.trim()) {
+      await context.secrets.store('surfer-token', token)
+      vscode.window.showInformationMessage('Surfer: Signed in successfully!');
+    }
+  })
+  context.subscriptions.push(signInCommand);
 
 
 }

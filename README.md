@@ -1,24 +1,44 @@
-# Surfer
-Surfer is a VS Code extension that helps developers build apps faster by automating repetitive tasks. Its built on top of the vercel ai sdk and groq. It adds to panels to your IDE: The chat panel and the task panel. The chat panel is a chat interface that allows you to chat with the AI. The task panel is a task interface that allows you to create and manage tasks. The chat panel like its sounds is a simple coding chatbot while the task panel is run by a head orchestration agent and 3 sub agents. The head has to determine what agents need to be called. the three agents are: the planner agent, the coder agent and the reviewer agent. The planner agent is responsible for planning the tasks. The coder agent is responsible for coding the tasks. The reviewer agent is responsible for reviewing the code generated. The reviewer is called in particularly long or big tasks.
+# Surfer AI
 
-You can also press ctrl + shift+ p and search create project to get access to a quick create menu.  This will allow you to create web projects and react native projects. The menu supports these four frameworks - Vite, next.js , tanstack and expo.
+Surfer AI is a VS Code extension that helps developers build apps faster by automating repetitive coding tasks. It adds two panels to your IDE: the **Chat Panel** and the **Task Panel**.
 
-# Tech Stack
+## How it works
+
+**Chat Panel** — A smart coding assistant that can read, create, and edit files in your workspace. Ask it questions, get code suggestions, or have it make changes directly to your project.
+
+**Task Panel** — An agentic system powered by a multi-agent orchestration pipeline:
+- **Orchestrator** — the lead agent that delegates work to the right sub-agents
+- **Planner Agent** — breaks down the task into a technical plan
+- **Coder Agent** — implements the plan by creating and editing files
+- **Reviewer Agent** — reviews the generated code for quality and correctness
+
+Both panels are powered by your Surfer AI account — no API keys required. Just sign in and start building.
+
+## Quick Project Creation
+
+Press `Ctrl + Shift + P` and search **"Create Project"** to access a quick project creation menu. Supports:
+- Vite (React + TypeScript)
+- Next.js
+- TanStack
+- Expo (React Native)
+
+## Tech Stack
+
 - Vercel AI SDK
-- Groq
-- Tailwind CSS
+- Groq (GPT-OSS 120B for free users)
+- Claude Sonnet (for Pro/Max users)
 - TypeScript
-- VSCode Extension API
+- VS Code Extension API
+- Surfer SDK
 
-# How to use:
-- First go to https://surfer-web-five.vercel.app
-- Then click on the "Try now" link
-- This will open the open-vsx registry page for the extension
-- Click on the "download" button
-- After the download is done go to your extensions panel in VS Code(or and editor which uses open vsx) and click on the three dots and click on "Install from VSIX..."
-- After it is installed you will see two more badges in the primary panel.
--  Move one of them to the secondary sidebar for easy use and you are done!
+## How to install
 
-# Video of how to install
+1. Go to [surfer-dash.vercel.app](https://surfer-dash.vercel.app) and create an account
+2. After signing in, go to **Settings → Connect VS Code** to get your token
+3. Install the extension from the [Open VSX Registry](https://open-vsx.org)
+4. Press `Ctrl + Shift + P` → **Surfer: Sign In** and paste your token
+5. Move one panel to the secondary sidebar for the best experience
 
-https://surfer-web-five.vercel.app/demo
+## Demo
+
+https://surfer-dash.vercel.app/demo

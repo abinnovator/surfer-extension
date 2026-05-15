@@ -3,21 +3,26 @@ import { createOrchestratorAgent } from './agents/OrchestratorAgent';
 export async function runAgent(
   userRequest: string,
   onUpdate: (msg: string) => void
-): Promise<string> {
-  console.log('[AgentRunner] Starting agent execution');
-  console.log('[AgentRunner] User request:', userRequest);
+): Promise<{ text: string, tokensUsed: number }> {
+  console.log('[AgentRunner] Starting agent execution')
+  console.log('[AgentRunner] User request:', userRequest)
   
-  const orchestrator = createOrchestratorAgent(onUpdate);
-  console.log('[AgentRunner] Orchestrator agent created');
+  const { agent, getTokens } = createOrchestratorAgent(onUpdate)
+  console.log('[AgentRunner] Orchestrator agent created')
   
   try {
-    console.log('[AgentRunner] Calling orchestrator.generate()...');
-    const result = await orchestrator.generate({ prompt: userRequest });
-    console.log('[AgentRunner] Agent execution completed successfully');
-    console.log('[AgentRunner] Result:', result.text);
-    return result.text;
+    console.log('[AgentRunner] Calling agent.generate()...')
+    const result = await agent.generate({ prompt: userRequest })
+    
+    // Add orchestrator's own token usage
+    const totalTokens = getTokens() + (result.usage?.totalTokens ?? 0)
+    
+    console.log('[AgentRunner] Agent execution completed')
+    console.log('[AgentRunner] Total tokens used:', totalTokens)
+    
+    return { text: result.text, tokensUsed: totalTokens }
   } catch (error) {
-    console.error('[AgentRunner] Agent execution failed:', error);
+    console.error('[AgentRunner] Agent execution failed:', error)
     throw error;
   }
 }

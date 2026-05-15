@@ -63,7 +63,6 @@ function formatMessageContent(content: string) {
     lastIndex = match.index + match[0].length;
   }
 
-  // Add remaining text (with inline code formatting)
   if (lastIndex < content.length) {
     const remainingText = content.substring(lastIndex);
     parts.push(
@@ -76,7 +75,6 @@ function formatMessageContent(content: string) {
   return parts.length > 0 ? parts : content;
 }
 
-// Helper function to format inline code (single backticks)
 function formatInlineCode(text: string) {
   const parts: React.ReactNode[] = [];
   const inlineCodeRegex = /`([^`]+)`/g;
@@ -84,12 +82,10 @@ function formatInlineCode(text: string) {
   let match;
 
   while ((match = inlineCodeRegex.exec(text)) !== null) {
-    // Add text before inline code
     if (match.index > lastIndex) {
       parts.push(text.substring(lastIndex, match.index));
     }
 
-    // Add inline code
     parts.push(
       <code key={`inline-${match.index}`} style={{
         background: 'var(--vscode-textCodeBlock-background)',
@@ -106,7 +102,6 @@ function formatInlineCode(text: string) {
     lastIndex = match.index + match[0].length;
   }
 
-  // Add remaining text
   if (lastIndex < text.length) {
     parts.push(text.substring(lastIndex));
   }
@@ -144,7 +139,6 @@ export function ChatPanel() {
   React.useEffect(() => {
     console.log('ChatPanel mounted');
     
-    // Listen for messages from the extension
     const messageHandler = (event: MessageEvent) => {
       const message = event.data;
       if (message.command === 'chatResponse') {
@@ -163,11 +157,9 @@ export function ChatPanel() {
   }, []);
 
   const sendMessage = React.useCallback((message: string, role: string) => {
-    // Add user message to UI
     const updatedMessages = [...messages, { role, content: message }];
     setMessages(updatedMessages);
     
-    // Send full message history to extension host to call Groq API
     vscode.postMessage({ 
       command: 'sendChat', 
       messages: updatedMessages

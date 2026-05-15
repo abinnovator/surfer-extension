@@ -1,13 +1,14 @@
 {
   "name": "surfer",
   "publisher": "Abinnovator",
+  "icon": "media/wave.png",
   "displayName": "surfer",
   "repository": {
     "type": "git",
     "url": "https://github.com/abinnovator/surfer-extension"
   },
   "description": "An ai agentic extension:)",
-  "version": "0.0.6",
+  "version": "0.0.9",
   "engines": {
     "vscode": "^1.106.0"
   },
@@ -25,11 +26,15 @@
       {
         "command": "surfer.updateApiKey",
         "title": "Surfer: Update Groq API Key"
+      },
+      {
+        "command": "surfer.signIn",
+        "title": "Surfer: Sign In"
       }
     ],
     "keybindings": [
       {
-        "command": "surfer.ccreateProject",
+        "command": "surfer.createProject",
         "key": "win+a",
         "when": "editorTextFocus"
       }
@@ -91,11 +96,13 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.33",
+    "@clerk/react": "^6.6.2",
     "@exalabs/ai-sdk": "^2.0.1",
     "ai": "^6.0.146",
     "groq-sdk": "^1.1.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "surfer-sdk": "file:../surfer-sdk/surfer-sdk-0.0.1.tgz",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   }
