@@ -125,7 +125,7 @@ export async function activate(context: vscode.ExtensionContext) {
   
 
   const signInCommand = vscode.commands.registerCommand('surfer.signIn', async () => {
-    vscode.env.openExternal(vscode.Uri.parse('https://surferai.dev/token'))
+    vscode.env.openExternal(vscode.Uri.parse('https://surfer.aaditbhambri.com/token'))
     
     const token = await vscode.window.showInputBox({
       prompt: 'Paste your Surfer token from the browser',

@@ -26,19 +26,15 @@ Press `Ctrl + Shift + P` and search **"Create Project"** to access a quick proje
 
 - Vercel AI SDK
 - Groq (GPT-OSS 120B for free users)
-- Claude Sonnet (for Pro/Max users)
+- Claude Sonnet (for Pro/Max users)(Backend done but not enabled yet sadly)
 - TypeScript
 - VS Code Extension API
 - Surfer SDK
 
 ## How to install
 
-1. Go to [surfer-dash.vercel.app](https://surfer-dash.vercel.app) and create an account
+1. Go to [surfer.aaditbhambri.com](https://surfer.aaditbhambri.com) and create an account
 2. After signing in, go to **Settings → Connect VS Code** to get your token
 3. Install the extension from the [Open VSX Registry](https://open-vsx.org)
 4. Press `Ctrl + Shift + P` → **Surfer: Sign In** and paste your token
 5. Move one panel to the secondary sidebar for the best experience
-
-## Demo
-
-https://surfer-dash.vercel.app/demo
